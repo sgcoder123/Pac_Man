@@ -1,5 +1,6 @@
 # Pac_Man
 The user controls Pac-Man with arrow keys or WASD.
+The game terrain will be made of squares.
 This game has 4 ghosts that chase around pac-man a pie shaped person. 
 Pac-Man has to run away from the 4 ghosts while eating all of the yellow dots. 
 If a ghost touches Pac-Man he dies.
