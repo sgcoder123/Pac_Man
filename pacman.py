@@ -22,7 +22,7 @@ direction=0
 counter=0
 flicker=False
 valid_turns=[False, False, False, False]#Right, Left, Up, Down
-
+direction_command=0
 def draw_board():
     num1=((height-50)//32)
     num2=(width//30)
@@ -58,7 +58,7 @@ def draw_player():
         screen.blit(pygame.transform.rotate(player_images[counter//5], 270), (player_x, player_y))
 
 def check_position(centerx, centery):
-    valid_turns=[False, False, False, False]
+    turns=[False, False, False, False]
     num1=(height-50)//32
     num2=(width//30)
     num3=15
@@ -66,43 +66,43 @@ def check_position(centerx, centery):
     if centerx //30<29:
         if direction==0:#right
             if level [centery//num1][(centerx-num3)//num2]<3:
-                valid_turns[1]=True
+                turns[1]=True
         if direction==1:#left
             if level [centery//num1][(centerx+num3)//num2]<3:
-                valid_turns[0]=True
+                turns[0]=True
         if direction==2:#up
             if level [(centery+num3)//num1][(centerx-num3)//num2]<3:
-                valid_turns[3]=True
+                turns[3]=True
         if direction==3:#down
             if level [(centery-num3)//num1][(centerx-num3)//num2]<3:
-                valid_turns[2]=True
+                turns[2]=True
         
         if direction==2 or direction==3: 
             if 12<=centerx%num2<=18:
                 if level[(centery+num3)//num1][centerx//num2]<3:
-                    valid_turns[3]=True
+                    turns[3]=True
                 if level[(centery+num3)//num1][centerx//num2]<3:
-                    valid_turns[2]=True
+                    turns[2]=True
             if 12<=centery%num1<=18:
                 if level[centery//num1][(centerx-num2)//num2]<3:
-                    valid_turns[1]=True
+                    turns[1]=True
                 if level[centery//num1][(centerx+num2)//num2]<3:
-                    valid_turns[0]=True
+                    turns[0]=True
         if direction==0 or direction==1: 
             if 12<=centerx%num2<=18:
                 if level[(centery+num1)//num1][centerx//num2]<3:
-                    valid_turns[3]=True
+                    turns[3]=True
                 if level[(centery+num1)//num1][centerx//num2]<3:
-                    valid_turns[2]=True
+                    turns[2]=True
             if 12<=centery%num1<=18:
                 if level[centery//num1][(centerx-num3)//num2]<3:
-                    valid_turns[1]=True
+                    turns[1]=True
                 if level[centery//num1][(centerx+num3)//num2]<3:
-                    valid_turns[0]=True
+                    turns[0]=True
     else:
-        vaild_turns[0]=True
-        vaild_turns[1]=True
-    return valid_turns
+        turns[0]=True
+        turns[1]=True
+    return turns
 
 
 run = True
@@ -112,13 +112,31 @@ while run:
             run = False
         if event.type==pygame.KEYDOWN:
             if event.key==pygame.K_RIGHT:#right arrow key
-                direction=0
+                direction_command=0
             elif event.key==pygame.K_LEFT:#left arrow key
-                direction=1
+                direction_command=1
             elif event.key==pygame.K_UP:#up arrow key
-                direction=2
+                direction_command=2
             elif event.key==pygame.K_DOWN:#down arow key
-                direction=3
+                direction_command=3
+        if event.type==pygame.KEYUP:
+            if event.key==pygame.K_RIGHT and direction_command==0:#right arrow key
+                direction_command=direction
+            elif event.key==pygame.K_LEFT and direction_command==1:#left arrow key
+                direction_command=direction
+            elif event.key==pygame.K_UP and direction_command==2:#up arrow key
+                direction_command=direction
+            elif event.key==pygame.K_DOWN and direction_command==3:#down arow key
+                direction_command=direction
+        
+        for i in range(4):
+            if direction_command==i and valid_turns[i]:
+                direction=i
+                
+        if player_x>900:
+            player_x=-47
+        elif player_x<-50:
+            player_x=897
     screen.fill((0, 0, 0))  # Clear screen with black
     draw_board()            # Draw the board with dots
     draw_player()           # Draw the player
