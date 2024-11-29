@@ -23,6 +23,9 @@ counter=0
 flicker=False
 valid_turns=[False, False, False, False]#Right, Left, Up, Down
 direction_command=0
+player_speed=2
+score=0
+
 def draw_board():
     num1=((height-50)//32)
     num2=(width//30)
@@ -58,53 +61,76 @@ def draw_player():
         screen.blit(pygame.transform.rotate(player_images[counter//5], 270), (player_x, player_y))
 
 def check_position(centerx, centery):
-    turns=[False, False, False, False]
-    num1=(height-50)//32
-    num2=(width//30)
-    num3=15
-    #check collions based on center x and center y of player with fudge factor of 15
-    if centerx //30<29:
-        if direction==0:#right
-            if level [centery//num1][(centerx-num3)//num2]<3:
-                turns[1]=True
-        if direction==1:#left
-            if level [centery//num1][(centerx+num3)//num2]<3:
-                turns[0]=True
-        if direction==2:#up
-            if level [(centery+num3)//num1][(centerx-num3)//num2]<3:
-                turns[3]=True
-        if direction==3:#down
-            if level [(centery-num3)//num1][(centerx-num3)//num2]<3:
-                turns[2]=True
-        
-        if direction==2 or direction==3: 
-            if 12<=centerx%num2<=18:
-                if level[(centery+num3)//num1][centerx//num2]<3:
-                    turns[3]=True
-                if level[(centery+num3)//num1][centerx//num2]<3:
-                    turns[2]=True
-            if 12<=centery%num1<=18:
-                if level[centery//num1][(centerx-num2)//num2]<3:
-                    turns[1]=True
-                if level[centery//num1][(centerx+num2)//num2]<3:
-                    turns[0]=True
-        if direction==0 or direction==1: 
-            if 12<=centerx%num2<=18:
-                if level[(centery+num1)//num1][centerx//num2]<3:
-                    turns[3]=True
-                if level[(centery+num1)//num1][centerx//num2]<3:
-                    turns[2]=True
-            if 12<=centery%num1<=18:
-                if level[centery//num1][(centerx-num3)//num2]<3:
-                    turns[1]=True
-                if level[centery//num1][(centerx+num3)//num2]<3:
-                    turns[0]=True
+    turns = [False, False, False, False]
+    num1 = (height - 50) // 32
+    num2 = (width // 30)
+    num3 = 15
+    # check collisions based on center x and center y of player +/- fudge number
+    if centerx // 30 < 29:
+        if direction == 0:
+            if level[centery // num1][(centerx - num3) // num2] < 3:
+                turns[1] = True
+        if direction == 1:
+            if level[centery // num1][(centerx + num3) // num2] < 3:
+                turns[0] = True
+        if direction == 2:
+            if level[(centery + num3) // num1][centerx // num2] < 3:
+                turns[3] = True
+        if direction == 3:
+            if level[(centery - num3) // num1][centerx // num2] < 3:
+                turns[2] = True
+
+        if direction == 2 or direction == 3:
+            if 12 <= centerx % num2 <= 18:
+                if level[(centery + num3) // num1][centerx // num2] < 3:
+                    turns[3] = True
+                if level[(centery - num3) // num1][centerx // num2] < 3:
+                    turns[2] = True
+            if 12 <= centery % num1 <= 18:
+                if level[centery // num1][(centerx - num2) // num2] < 3:
+                    turns[1] = True
+                if level[centery // num1][(centerx + num2) // num2] < 3:
+                    turns[0] = True
+        if direction == 0 or direction == 1:
+            if 12 <= centerx % num2 <= 18:
+                if level[(centery + num1) // num1][centerx // num2] < 3:
+                    turns[3] = True
+                if level[(centery - num1) // num1][centerx // num2] < 3:
+                    turns[2] = True
+            if 12 <= centery % num1 <= 18:
+                if level[centery // num1][(centerx - num3) // num2] < 3:
+                    turns[1] = True
+                if level[centery // num1][(centerx + num3) // num2] < 3:
+                    turns[0] = True
     else:
-        turns[0]=True
-        turns[1]=True
+        turns[0] = True
+        turns[1] = True
+
     return turns
 
+def move_player(play_x, play_y):
+    if direction == 0 and valid_turns[0]:
+        play_x += player_speed
+    elif direction == 1 and valid_turns[1]:
+        play_x -= player_speed
+    elif direction == 2 and valid_turns[2]:
+        play_y -= player_speed
+    elif direction == 3 and valid_turns[3]:
+        play_y += player_speed
+    return play_x, play_y
 
+def check_collisions(score):
+    num1=(height-50)//32
+    num2=width//30
+    if 0<player_x<870:
+        if level[center_y//num1][center_x//num2]==1:
+            level[center_y//num1][center_x//num2]=0
+            score+=10
+        elif level[center_y//num1][center_x//num2]==2:
+            level[center_y//num1][center_x//num2]=0
+            score+=50
+
+    return score
 run = True
 while run:
     for event in pygame.event.get():
@@ -129,22 +155,24 @@ while run:
             elif event.key==pygame.K_DOWN and direction_command==3:#down arow key
                 direction_command=direction
         
-        for i in range(4):
-            if direction_command==i and valid_turns[i]:
-                direction=i
-                
-        if player_x>900:
-            player_x=-47
-        elif player_x<-50:
-            player_x=897
+    for i in range(4):
+        if direction_command == i and valid_turns[i]:
+            direction = i
+
+    if player_x > 900:
+        player_x = -47
+    elif player_x < -50:
+        player_x = 897
+        
     screen.fill((0, 0, 0))  # Clear screen with black
     draw_board()            # Draw the board with dots
     draw_player()           # Draw the player
     center_x=player_x+23
     center_y=player_y+24    
-    pygame.draw.circle(screen, 'white', (center_x, center_y), 2)
-    vaild_turns=check_position(center_x, center_y)
-
+    valid_turns=check_position(center_x, center_y)
+    player_x, player_y=move_player(player_x, player_y)
+    score=check_collisions(score)
+    
     pygame.display.flip()   # Update the display
     timer.tick(fps)        # Limit the frame rate to 60 fps
     if counter<19:
