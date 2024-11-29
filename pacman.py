@@ -119,7 +119,8 @@ def move_player(play_x, play_y):
         play_y += player_speed
     return play_x, play_y
 
-def check_collisions(score):
+def check_collisions(score,powerup,power_count,eaten_ghosts):
+
     num1=(height-50)//32
     num2=width//30
     if 0<player_x<870:
@@ -129,8 +130,17 @@ def check_collisions(score):
         elif level[center_y//num1][center_x//num2]==2:
             level[center_y//num1][center_x//num2]=0
             score+=50
+            powerup=True
+            power_count=0
+            eaten_ghosts=[False, False, False, False]
 
-    return score
+    return score,powerup,power_count,eaten_ghosts
+
+def draw_misc():
+    score_text=font.render(f"Score: {score}", True, ('red'))
+    screen.blit(score_text, (10, 920))
+
+
 run = True
 while run:
     for event in pygame.event.get():
@@ -166,13 +176,14 @@ while run:
         
     screen.fill((0, 0, 0))  # Clear screen with black
     draw_board()            # Draw the board with dots
-    draw_player()           # Draw the player
+    draw_player()  
+    draw_misc()         # Draw the player
     center_x=player_x+23
     center_y=player_y+24    
     valid_turns=check_position(center_x, center_y)
     player_x, player_y=move_player(player_x, player_y)
     score=check_collisions(score)
-    
+
     pygame.display.flip()   # Update the display
     timer.tick(fps)        # Limit the frame rate to 60 fps
     if counter<19:
