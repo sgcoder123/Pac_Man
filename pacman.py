@@ -34,7 +34,7 @@ start_counter=0
 moving=False
 lives=3
 
-def draw_board():
+def draw_board(): # Renders game board based on the level layout from board.py
     num1=((height-50)//32)
     num2=(width//30)
     for i in range(len(level)): #  i = row
@@ -58,7 +58,7 @@ def draw_board():
             elif level[i][j]==9:
                 pygame.draw.line(screen, 'white', (j*num2, i*num1 + (0.5*num1)), (j*num2 + num2, i*num1 + (0.5*num1)), 3) # 9 = white horizontal line
 
-def draw_player():
+def draw_player(): # Renders Pac-Man on the screen based on the direction and position
     if direction==0: # right
         screen.blit(player_images[counter//5], (player_x, player_y))
     elif direction==1: # left
@@ -68,7 +68,7 @@ def draw_player():
     elif direction==3: # down
         screen.blit(pygame.transform.rotate(player_images[counter//5], 270), (player_x, player_y))
 
-def check_position(centerx, centery):
+def check_position(centerx, centery): # Determines valid turns based on Pac-Man current position and direction. Checks for collisions with walls and updates the (turns) list accordingly
     turns = [False, False, False, False]
     num1 = (height - 50) // 32
     num2 = (width // 30)
@@ -116,7 +116,7 @@ def check_position(centerx, centery):
 
     return turns
 
-def move_player(play_x, play_y):
+def move_player(play_x, play_y): # Moves the player in the current direction if the turn is valid
     if direction == 0 and valid_turns[0]:
         play_x += player_speed
     elif direction == 1 and valid_turns[1]:
@@ -127,7 +127,7 @@ def move_player(play_x, play_y):
         play_y += player_speed
     return play_x, play_y
 
-def check_collisions(score,powerup,power_count,eaten_ghosts):
+def check_collisions(score,powerup,power_count,eaten_ghosts): # Checks for collisions with dots and big dots. Updates the score and power-up status accordingly
 
     num1=(height-50)//32
     num2=width//30
@@ -144,7 +144,7 @@ def check_collisions(score,powerup,power_count,eaten_ghosts):
 
     return score,powerup,power_count,eaten_ghosts
 
-def draw_misc():
+def draw_misc(): # Draw miscellaneous elements on the screen like score, power-up indicator, and lives
     score_text=font.render(f"Score: {score}", True, ('red'))
     screen.blit(score_text, (10, 920))
     if powerup:
