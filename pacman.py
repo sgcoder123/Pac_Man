@@ -16,18 +16,23 @@ pi=math.pi
 player_images=[]
 for i in range (1,5):
     player_images.append(pygame.transform.scale(pygame.image.load(f"images/pacman{i}.png"), (45,45)))
+# Load and scale Pac-Man images for animation
+
 player_x=450
 player_y=663
 direction=0
 counter=0
 flicker=False
-valid_turns=[False, False, False, False]#Right, Left, Up, Down
+valid_turns=[False, False, False, False] # Right, Left, Up, Down
 direction_command=0
 player_speed=2
 score=0
 powerup = False
 eaten_ghosts = [False, False, False, False]
 power_count = 0
+start_counter=0
+moving=False
+lives=3
 
 def draw_board():
     num1=((height-50)//32)
@@ -35,32 +40,32 @@ def draw_board():
     for i in range(len(level)): #  i = row
         for j in range(len(level[i])):# j = column
             if level[i][j]==1:
-                pygame.draw.circle(screen, 'white', (j*num2+(0.5*num2), i*num1+(0.5*num1)), 4) # 1 = dot #surface, color, center, radius
+                pygame.draw.circle(screen, 'white', (j*num2+(0.5*num2), i*num1+(0.5*num1)), 4) # 1 = dot
             elif level[i][j]==2 and not flicker:
-                pygame.draw.circle(screen, 'white', (j*num2+(0.5*num2), i*num1+(0.5*num1)), 10) # 2 = big dot #surface, color, center, larger radius
+                pygame.draw.circle(screen, 'white', (j*num2+(0.5*num2), i*num1+(0.5*num1)), 10) # 2 = big dot
             elif level[i][j]==3:
-                pygame.draw.line(screen, color, (j*num2 + (0.5*num2), i*num1), (j*num2 + (0.5*num2), i*num1 + num1), 3) # 3 = vertical line #surface, color, start_pos, end_pos, line thickness
+                pygame.draw.line(screen, color, (j*num2 + (0.5*num2), i*num1), (j*num2 + (0.5*num2), i*num1 + num1), 3) # 3 = vertical line
             elif level[i][j]==4:
-                pygame.draw.line(screen, color, (j*num2, i*num1 + (0.5*num1)), (j*num2 + num2, i*num1 + (0.5*num1)), 3) # 4 = horizontal line #surface, color, start_pos, end_pos, line thickness
+                pygame.draw.line(screen, color, (j*num2, i*num1 + (0.5*num1)), (j*num2 + num2, i*num1 + (0.5*num1)), 3) # 4 = horizontal line
             elif level[i][j]==5:
-                pygame.draw.arc(screen, color, [(j*num2-(num2*0.4))-2, (i*num1+(0.5*num1)), num2, num1], 0, pi/2, 3) # 5 = top right #surface, color, rect, start_angle, stop_angle, line thickness
+                pygame.draw.arc(screen, color, [(j*num2-(num2*0.4))-2, (i*num1+(0.5*num1)), num2, num1], 0, pi/2, 3) # 5 = top right arc
             elif level[i][j]==6:
-                pygame.draw.arc(screen, color, [(j*num2+(num2*0.5)), (i*num1+(0.5*num1)), num2, num1], pi/2, pi, 3) # 6 = top left #surface, color, rect, start_angle, stop_angle, line thickness
+                pygame.draw.arc(screen, color, [(j*num2+(num2*0.5)), (i*num1+(0.5*num1)), num2, num1], pi/2, pi, 3) # 6 = top left arc
             elif level[i][j]==7:
-                pygame.draw.arc(screen, color, [(j*num2+(num2*0.5)), (i*num1-(0.4*num1)), num2, num1], pi, 3*pi/2, 3) 
+                pygame.draw.arc(screen, color, [(j*num2+(num2*0.5)), (i*num1-(0.4*num1)), num2, num1], pi, 3*pi/2, 3) # 7 = bottom left arc
             elif level[i][j]==8:
-                pygame.draw.arc(screen, color, [(j*num2-(num2*0.4))-2, (i*num1-(0.4*num1)), num2, num1], 3*pi/2, 2*pi, 3) 
+                pygame.draw.arc(screen, color, [(j*num2-(num2*0.4))-2, (i*num1-(0.4*num1)), num2, num1], 3*pi/2, 2*pi, 3) # 8 = bottom right arc
             elif level[i][j]==9:
-                pygame.draw.line(screen, 'white', (j*num2, i*num1 + (0.5*num1)), (j*num2 + num2, i*num1 + (0.5*num1)), 3)
+                pygame.draw.line(screen, 'white', (j*num2, i*num1 + (0.5*num1)), (j*num2 + num2, i*num1 + (0.5*num1)), 3) # 9 = white horizontal line
 
 def draw_player():
-    if direction==0:#right
+    if direction==0: # right
         screen.blit(player_images[counter//5], (player_x, player_y))
-    elif direction==1:#left
+    elif direction==1: # left
         screen.blit(pygame.transform.flip(player_images[counter//5], True, False), (player_x, player_y))
-    elif direction==2:#up
+    elif direction==2: # up
         screen.blit(pygame.transform.rotate(player_images[counter//5], 90), (player_x, player_y))
-    elif direction==3:#down
+    elif direction==3: # down
         screen.blit(pygame.transform.rotate(player_images[counter//5], 270), (player_x, player_y))
 
 def check_position(centerx, centery):
@@ -142,7 +147,11 @@ def check_collisions(score,powerup,power_count,eaten_ghosts):
 def draw_misc():
     score_text=font.render(f"Score: {score}", True, ('red'))
     screen.blit(score_text, (10, 920))
-
+    if powerup:
+        pygame.draw.circle(screen, 'blue', (140, 930), 15)
+    for i in range(lives):
+        screen.blit(pygame.transform.scale(player_images[0], (30,30)), (650+i*40, 915))
+# Draw score, power-up indicator, and lives
 
 run = True
 while run:
@@ -150,22 +159,22 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type==pygame.KEYDOWN:
-            if event.key==pygame.K_RIGHT:#right arrow key
+            if event.key==pygame.K_RIGHT: # right arrow key
                 direction_command=0
-            elif event.key==pygame.K_LEFT:#left arrow key
+            elif event.key==pygame.K_LEFT: # left arrow key
                 direction_command=1
-            elif event.key==pygame.K_UP:#up arrow key
+            elif event.key==pygame.K_UP: # up arrow key
                 direction_command=2
-            elif event.key==pygame.K_DOWN:#down arow key
+            elif event.key==pygame.K_DOWN: # down arrow key
                 direction_command=3
         if event.type==pygame.KEYUP:
-            if event.key==pygame.K_RIGHT and direction_command==0:#right arrow key
+            if event.key==pygame.K_RIGHT and direction_command==0: # right arrow key
                 direction_command=direction
-            elif event.key==pygame.K_LEFT and direction_command==1:#left arrow key
+            elif event.key==pygame.K_LEFT and direction_command==1: # left arrow key
                 direction_command=direction
-            elif event.key==pygame.K_UP and direction_command==2:#up arrow key
+            elif event.key==pygame.K_UP and direction_command==2: # up arrow key
                 direction_command=direction
-            elif event.key==pygame.K_DOWN and direction_command==3:#down arow key
+            elif event.key==pygame.K_DOWN and direction_command==3: # down arrow key
                 direction_command=direction
         
     for i in range(4):
@@ -179,16 +188,17 @@ while run:
         
     screen.fill((0, 0, 0))  # Clear screen with black
     draw_board()            # Draw the board with dots
-    draw_player()  
-    draw_misc()         # Draw the player
+    draw_player()           # Draw the player
+    draw_misc()             # Draw miscellaneous elements
     center_x=player_x+23
     center_y=player_y+24    
     valid_turns=check_position(center_x, center_y)
-    player_x, player_y=move_player(player_x, player_y)
+    if moving:
+        player_x, player_y=move_player(player_x, player_y)
     score, powerup, power_count, eaten_ghosts = check_collisions(score, powerup, power_count, eaten_ghosts)
 
     pygame.display.flip()   # Update the display
-    timer.tick(fps)        # Limit the frame rate to 60 fps
+    timer.tick(fps)         # Limit the frame rate to 60 fps
     if counter<19:
         counter+=1
         if counter>3:
@@ -196,5 +206,17 @@ while run:
     else:
         counter=0
         flicker=True
+    if powerup and power_count<600:
+        power_count+=1
+    elif powerup and power_count>=600:
+        power_count=0
+        powerup=False
+        eaten_ghosts=[False, False, False, False]
+    if start_counter<180:
+        moving=False
+        start_counter+=1
+    else:
+        moving=True
 
 pygame.quit()
+# Quit the game when the loop ends
