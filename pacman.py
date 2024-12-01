@@ -25,6 +25,9 @@ valid_turns=[False, False, False, False]#Right, Left, Up, Down
 direction_command=0
 player_speed=2
 score=0
+powerup = False
+eaten_ghosts = [False, False, False, False]
+power_count = 0
 
 def draw_board():
     num1=((height-50)//32)
@@ -182,7 +185,7 @@ while run:
     center_y=player_y+24    
     valid_turns=check_position(center_x, center_y)
     player_x, player_y=move_player(player_x, player_y)
-    score=check_collisions(score)
+    score, powerup, power_count, eaten_ghosts = check_collisions(score, powerup, power_count, eaten_ghosts)
 
     pygame.display.flip()   # Update the display
     timer.tick(fps)        # Limit the frame rate to 60 fps
