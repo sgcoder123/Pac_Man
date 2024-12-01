@@ -16,10 +16,27 @@ pi = math.pi  # Set the value of pi
 player_images = []  # Create a list to store player images
 for i in range(1, 5):  # Loop to load and scale Pac-Man images for animation
     player_images.append(pygame.transform.scale(pygame.image.load(f"images/pacman{i}.png"), (45, 45)))
-
+blinky_img = pygame.transform.scale(pygame.image.load(f"images/red.png"), (45,45)) 
+pinky_img = pygame.transform.scale(pygame.image.load(f"images/pink.png"), (45,45)) 
+inky_img = pygame.transform.scale(pygame.image.load(f"images/blue.png"), (45,45))  
+clyde_img = pygame.transform.scale(pygame.image.load(f"images/orange.png"), (45,45))  
+spooky_img = pygame.transform.scale(pygame.image.load(f"images/powerup.png"), (45,45)) 
+dead_img = pygame.transform.scale(pygame.image.load(f"images/dead.png"), (45,45))  
 player_x = 450  # Initial player x-position
 player_y = 663  # Initial player y-position
 direction = 0  # Initial direction (0=right, 1=left, 2=up, 3=down)
+blinky_x = 56  # Initial Blinky x-position
+blinky_y = 58  # Initial Blinky y-position
+blinky_direction=0
+pinky_x = 440  # Initial Pinky x-position
+pinky_y = 438  # Initial Pinky y-position
+pinky_direction=2
+inky_x = 440  # Initial Inky x-position
+inky_y = 388  # Initial Inky y-position
+inky_direction=2
+clyde_x = 440  # Initial Clyde x-position
+clyde_y = 438  # Initial Clyde y-position
+clyde_direction=2
 counter = 0  # Counter for animation
 flicker = False  # Flicker status
 valid_turns = [False, False, False, False]  # Valid turns (Right, Left, Up, Down)
@@ -28,11 +45,75 @@ player_speed = 2  # Speed of player movement
 score = 0  # Player score
 powerup = False  # Power-up status
 eaten_ghosts = [False, False, False, False]  # Ghosts eaten status
+targets=[(player_x,player_y), (player_x,player_y), (player_x,player_y), (player_x,player_y)]  # Target for Ghosts
+blinky_dead=False  # Blinky dead status
+pinky_dead=False  # Pinky dead status
+inky_dead=False  # Inky dead status
+clyde_dead=False  # Clyde dead status
+blinky_box=False  # Blinky box status
+pinky_box=False  # Pinky box status
+inky_box=False  # Inky box status
+clyde_box=False  # Clyde box status
 power_count = 0  # Power-up timer
 start_counter = 0  # Start counter
 moving = False  # Start moving status
+ghost_speed=2  # Speed of ghosts
 lives = 3  # Number of lives
 
+class Ghost:  # Class for the ghosts
+    def __init__(self, x_co, y_co, target, speed, img, direct, dead, box, id):
+        self.x_pos = x_co  # Set x-coordinate
+        self.y_pos = y_co  # Set y-coordinate
+        self.center_x=self.x_pos+22  # Set center x-coordinate
+        self.center_y=self.y_pos+22
+        self.target = target
+        self.speed = speed
+        self.img = img
+        self.direction = direct
+        self.dead = dead
+        self.in_box = box
+        self.id = id
+        self.turns, self.in_box = self.check_collsions()
+        self.rect=self.draw()
+
+    def draw(self):  # Function to draw the ghost on the screen
+        if (not powerup and not self.dead) or (eaten_ghosts[self.id] and powerup and not self.dead):  # If power-up is not active and ghost is not dead or power-up is active and ghost is dead
+            screen.blit(self.img, (self.x_pos, self.y_pos))
+        elif powerup and not self.dead and not eaten_ghosts[self.id]:  # If power-up is active and ghost is not dead
+            screen.blit(spooky_img, (self.x_pos, self.y_pos))
+        else:
+            screen.blit(dead_img, (self.x_pos, self.y_pos)) # Draw the dead ghost
+        ghost_rect=pygame.Rect(int(self.center_x-18), int(self.center_y-18), 36, 36) # Create a rectangle around the ghost as a hitbox
+        return ghost_rect  # Return the ghost rectangle
+    
+    def check_collsions(self):  # Function to check for collisions with walls
+        num1 = (height - 50) // 32
+        num2 = width // 30
+        num3 = 15
+        self.turns = [False, False, False, False]
+        if self.center_x // 30 < 29: # Check if center x is within the board
+            if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 or level[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box or self.dead): # Check right
+                self.turns[1] = True
+            if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 or level[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box or self.dead): # Check left
+                self.turns[0] = True
+            if level[(self.center_y + num3) // num1][(self.center_x + num3) // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): #  Check up
+                self.turns[3] = True
+            if level[(self.center_y - num3) // num1][(self.center_x - num3) // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): # Check down
+                self.turns[2] = True
+
+            if self.direction == 2 or self.direction == 3: # If direction is up or down
+                if 12 <= self.center_x % num2 <= 18: # Check if center x is within a valid range
+                    if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): # Check up
+                        self.turns[3] = True
+                    if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): # Check down
+                        self.turns[2] = True
+                if 12 <= self.center_y % num1 <= 18: # Check if center y is within a valid range
+                    if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): # Check left
+                        self.turns[1] = True
+                    if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 or level[self.center_y // num1][self.center_x // num2] == 9 and (self.in_box or self.dead): # Check right
+                        self.turns[0] = True
+        return self.turns, self.in_box  # Return the valid turns and in box status
+    
 def draw_board():  # Function to render the game board based on the level layout
     num1 = ((height - 50) // 32)  # Height of each cell
     num2 = (width // 30)  # Width of each cell
@@ -185,6 +266,10 @@ while run:  # Main game loop
     screen.fill((0, 0, 0))  # Clear the screen with black
     draw_board()  # Draw the board with dots
     draw_player()  # Draw the player
+    blinky=Ghost(blinky_x, blinky_y, targets[0], ghost_speed, blinky_img, blinky_direction, blinky_dead, blinky_box, 0)  # Create blinky ghost object, 0 is the id for blinky
+    inky=Ghost(inky_x, inky_y, targets[1], ghost_speed, inky_img, inky_direction, inky_dead, inky_box, 1)  # Create inky ghost object, 1 is the id for inky
+    pinky=Ghost(pinky_x, pinky_y, targets[2], ghost_speed, pinky_img, pinky_direction, pinky_dead, pinky_box, 2)  # Create pinky ghost object, 2 is the id for pinky
+    clyde=Ghost(clyde_x, clyde_y, targets[3], ghost_speed, clyde_img, clyde_direction, clyde_dead, clyde_box, 3)  # Create clyde ghost object, 3 is the id for Blinky
     draw_misc()  # Draw miscellaneous elements
     center_x = player_x + 23  # Calculate the center x of the player
     center_y = player_y + 24  # Calculate the center y of the player
