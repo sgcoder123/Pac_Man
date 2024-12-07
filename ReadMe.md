@@ -1,6 +1,6 @@
 # Pac-Man Game in Python with Pygame
 
-This project is a recreation of the classic Pac-Man game using the Pygame library in Python. The game includes all the essential features of Pac-Man, including player movement, ghost AI, power-ups, and collision detection.
+This project recreates the classic Pac-Man game using the Pygame library in Python. It includes all the essential features of Pac-Man, including player movement, ghost AI, power-ups, and collision detection.
 
 ## Features
 
