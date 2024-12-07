@@ -17,13 +17,48 @@ color = 'blue'
 PI = math.pi
 player_images = []
 for i in range(1, 5):
-    player_images.append(pygame.transform.scale(pygame.image.load(f'images/{i}.png'), (45, 45)))
-blinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/red.png'), (45, 45))
-pinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/pink.png'), (45, 45))
-inky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/blue.png'), (45, 45))
-clyde_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/orange.png'), (45, 45))
-spooked_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/powerup.png'), (45, 45))
-dead_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/dead.png'), (45, 45))
+    try:
+        player_images.append(pygame.transform.scale(pygame.image.load(f'assets/player_images/pacman{i}.png'), (45, 45)))
+    except FileNotFoundError:
+        print(f"Error: assets/player_images/pacman{i}.png not found.")
+        pygame.quit()
+        exit()
+try:
+    blinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/red.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/red.png not found.")
+    pygame.quit()
+    exit()
+try:
+    pinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/pink.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/pink.png not found.")
+    pygame.quit()
+    exit()
+try:
+    inky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/blue.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/blue.png not found.")
+    pygame.quit()
+    exit()
+try:
+    clyde_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/orange.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/orange.png not found.")
+    pygame.quit()
+    exit()
+try:
+    spooked_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/powerup.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/powerup.png not found.")
+    pygame.quit()
+    exit()
+try:
+    dead_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/dead.png'), (45, 45))
+except FileNotFoundError:
+    print("Error: assets/ghost_images/dead.png not found.")
+    pygame.quit()
+    exit()
 player_x = 450
 player_y = 663
 direction = 0
@@ -667,15 +702,17 @@ def draw_misc():
     for i in range(lives):
         screen.blit(pygame.transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     if game_over:
-        pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
+        pygame.draw.rect(screen, 'white', [50, 200, 800, 300], 0, 10)
         pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
         gameover_text = font.render('Game over! Space bar to restart!', True, 'red')
         screen.blit(gameover_text, (100, 300))
     if game_won:
-        pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
-        pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
-        gameover_text = font.render('Victory! Space bar to restart!', True, 'green')
-        screen.blit(gameover_text, (100, 300))
+        pygame.draw.rect(screen, 'white', [150, 250, 600, 200], 0, 10)
+        pygame.draw.rect(screen, 'dark gray', [170, 270, 560, 160], 0, 10)
+        gameover_text = font.render('Victory!', True, 'green')
+        restart_text = font.render('Press Space to Restart', True, 'green')
+        screen.blit(gameover_text, (350, 300))
+        screen.blit(restart_text, (250, 350))
 
 
 def check_collisions(scor, power, power_count, eaten_ghosts):
