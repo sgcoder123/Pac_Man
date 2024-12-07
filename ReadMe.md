@@ -58,10 +58,6 @@ This project is a recreation of the classic Pac-Man game using the Pygame librar
 
 Contributions are welcome! If you have any suggestions or improvements, please create a pull request or open an issue.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgements
 
 - Inspired by the classic Pac-Man game.
